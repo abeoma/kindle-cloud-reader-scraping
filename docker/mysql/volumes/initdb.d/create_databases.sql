@@ -1,0 +1,2 @@
+CREATE DATABASE IF NOT EXISTS local_master;
+GRANT ALL PRIVILEGES ON *.* TO 'sample_user'@'%' IDENTIFIED BY 'secret';

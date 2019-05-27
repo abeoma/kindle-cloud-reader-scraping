@@ -1,0 +1,28 @@
+version: '2'
+
+services:
+  mysql:
+    image: mysql:5.7
+    expose:
+      - "3306"
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./docker/mysql/volumes/initdb.d:/docker-entrypoint-initdb.d
+    env_file:
+      - ./docker/mysql-server.env
+
+  python-cli:
+    build: ./docker/python
+    depends_on:
+      - mysql
+    volumes:
+      - ./src:/work/src
+      - ./data:/work/data
+    env_file:
+      - ./docker/mysql-client.env
+
+
+volumes:
+  mysql:
+    driver: local
