@@ -9,7 +9,7 @@ from lib.logger import logger
 
 
 class DriverBuilder:
-    def get_driver(self, download_location=None, headless=False):
+    def get_driver(self, download_location="./", headless=False):
 
         driver = self._get_chrome_driver(download_location, headless)
 

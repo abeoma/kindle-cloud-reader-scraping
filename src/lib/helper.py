@@ -1,15 +1,24 @@
-import csv
 import re
 import sys
-from datetime import datetime
-from itertools import islice
+from datetime import datetime, timezone, timedelta
 from time import time
+from uuid import uuid4
 
-import requests
 from pathlib import Path
-from typing import List, Optional, Dict, Any, Iterator
+from typing import List, Optional
 
 from bs4 import BeautifulSoup
+
+
+def new_pk() -> str:
+    return str(uuid4())
+
+
+JST = timezone(timedelta(hours=+9), "JST")
+
+
+def make_now() -> datetime:
+    return datetime.now(JST)
 
 
 def current_date_str() -> str:
@@ -38,11 +47,6 @@ def find_latest_source_file(parent_dir: Path, suffix: str) -> Path:
     return file
 
 
-def read_html(url: str) -> str:
-    r = requests.get(url)
-    return r.text
-
-
 def parse_html(html: str) -> BeautifulSoup:
     return BeautifulSoup(html, features="html.parser")
 
@@ -50,42 +54,6 @@ def parse_html(html: str) -> BeautifulSoup:
 def parse_cache_html(filepath: Path) -> BeautifulSoup:
     html: str = filepath.open().read()
     return parse_html(html)
-
-
-def import_dicts_from_csv(filepath: Path) -> List[Dict[str, Any]]:
-    with filepath.open("r") as f:
-        reader = csv.DictReader(f)
-        return [r for r in reader]
-
-
-def export_dicts_to_csv(
-    filepath: Path, records: Iterator[Dict[str, Any]], fieldnames: List[str] = None
-):
-    first = records.__next__()
-    if fieldnames is None:
-        fieldnames = [k for k in first.keys()]
-
-    with filepath.open("w") as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerow(first)
-        for i, record in enumerate(records):
-            print("\r {0:d} ".format(i + 1), end="")
-            writer.writerow(record)
-
-def split_every(n, iterable) -> Iterator[List]:
-    i = iter(iterable)
-    piece = list(islice(i, n))
-    count = 0
-    while piece:
-        count += len(piece)
-        print("\r {0:d} ".format(count), end="")
-        yield piece
-        piece = list(islice(i, n))
-
-
-def make_now() -> datetime:
-    return datetime.now()
 
 
 class Timer:
